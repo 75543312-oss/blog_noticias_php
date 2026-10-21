@@ -1,0 +1,45 @@
+﻿<?php
+require_once __DIR__ . '/config.php';
+$pageTitle = 'Inicio';
+$q = trim((string)($_GET['q'] ?? ''));
+$category = filter_input(INPUT_GET, 'category', FILTER_VALIDATE_INT) ?: 0;
+$perPage = 9;
+$page = max(1, (int)(filter_input(INPUT_GET, 'p', FILTER_VALIDATE_INT) ?: 1));
+
+$conditions = ["n.status = 'published'"];
+$params = [];
+if ($q !== '') {
+    $conditions[] = '(n.title LIKE ? OR n.summary LIKE ?)';
+    $like = '%' . like_escape($q) . '%';
+    array_push($params, $like, $like);
+}
+if ($category > 0) {
+    $conditions[] = 'n.category_id = ?';
+    $params[] = $category;
+}
+$whereSql = 'WHERE ' . implode(' AND ', $conditions);
+
+$cnt = db()->prepare('SELECT COUNT(*) FROM news n ' . $whereSql);
+$cnt->execute($params);
+$total = (int)$cnt->fetchColumn();
+$pages = total_pages($total, $perPage);
+$page = min($page, $pages);
+$offset = ($page - 1) * $perPage;
+
+$statement = db()->prepare(
+    'SELECT n.id,n.title,n.summary,n.image_url,n.image_alt,n.published_at,c.name AS category_name '
+    . 'FROM news n LEFT JOIN categories c ON c.id=n.category_id '
+    . $whereSql
+    . ' ORDER BY COALESCE(n.published_at,n.created_at) DESC LIMIT ? OFFSET ?'
+);
+foreach ($params as $i => $value) {
+    $statement->bindValue($i + 1, $value, is_int($value) ? PDO::PARAM_INT : PDO::PARAM_STR);
+}
+$statement->bindValue(count($params) + 1, $perPage, PDO::PARAM_INT);
+$statement->bindValue(count($params) + 2, $offset, PDO::PARAM_INT);
+$statement->execute();
+$news = $statement->fetchAll();
+
+$categories = db()->query('SELECT id,name FROM categories ORDER BY name')->fetchAll();
+require __DIR__ . '/partials/header.php';
+?>

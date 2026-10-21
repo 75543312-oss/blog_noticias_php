@@ -1,0 +1,18 @@
+project:
+  name: "Blog de Noticias PHP"
+  version: 1.0.0
+  description: "Sitio de noticias con panel de administrador y login"
+  stack:
+    detect: true
+academic:
+  course: "Pruebas y Calidad de Software"
+  evaluation_name: "Evaluación del Parcial"
+  partial_weight_percentage: 80
+evaluator:
+  name: "Mg. NOMBRE DEL DOCENTE"
+  email: "docente@continental.edu.pe"
+  role: "Docente Evaluador"
+members:
+  - name: "Karen TU APELLIDO"
+    code: "TU_CODIGO"
+    email: "TU_CODIGO@continental.edu.pe"

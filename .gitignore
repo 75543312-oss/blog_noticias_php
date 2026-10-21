@@ -1,0 +1,12 @@
+﻿.scannerwork/
+.git/
+.env
+.env.*
+!.env.example
+vendor/
+node_modules/
+coverage/
+.phpunit.cache/
+
+vendor/
+.phpunit.cache/
